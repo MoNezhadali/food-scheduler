@@ -1,0 +1,53 @@
+{
+    "display_name": "Chinese Meal",
+    "name": "chinese-meal",
+    "description": "A food invented by Chef Grazynka Poltorak",
+    "portions": 4,
+    "ingredients": [
+        {
+            "name": "rice",
+            "quantity": {
+                "amount": 4,
+                "unit": "cups"
+            }
+        },
+        {
+            "name": "chicken-breast",
+            "quantity": {
+                "amount": 500,
+                "unit": "grams"
+            }
+        },
+        {
+            "name": "bell-pepper",
+            "quantity": {
+                "amount": 150,
+                "unit": "grams"
+            }
+        },
+        {
+            "name": "champignon-mushrooms",
+            "quantity": {
+                "amount": 150,
+                "unit": "grams"
+            }
+        },
+        {
+            "name": "cantarelle-sauce-powder",
+            "quantity": {
+                "amount": 30,
+                "unit": "grams"
+            }
+        },
+        {
+            "name": "turkish-yogurt",
+            "quantity": {
+                "amount": 300,
+                "unit": "grams"
+            }
+        }
+    ],
+    "recipe": [
+        "Fill in..."
+    ]
+}
