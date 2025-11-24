@@ -1,0 +1,87 @@
+{
+    "name": "Istanbuli",
+    "description": "A traditional Turkish dish made with rice, ground meat, and spices",
+    "ingredients": [
+        {
+            "name": "Rice",
+            "quantity": {
+                "amount": 2,
+                "unit": "cups"
+            }
+        },
+        {
+            "name": "Ground beef (lamb/beef)",
+            "quantity": {
+                "amount": 500,
+                "unit": "grams"
+            }
+        },
+        {
+            "name": "Onion",
+            "quantity": {
+                "amount": 150,
+                "unit": "grams",
+                "notes": "1 medium onion is about 150 grams"
+            }
+        },
+        {
+            "name": "Tomato paste",
+            "quantity": {
+                "amount": 2,
+                "unit": "tablespoons"
+            }
+        },
+        {
+            "name": "Butter",
+            "quantity": {
+                "amount": 3,
+                "unit": "tablespoons"
+            }
+        },
+        {
+            "name": "Vegetable oil",
+            "quantity": {
+                "amount": 2,
+                "unit": "tablespoons"
+            }
+        },
+        {
+            "name": "Salt",
+            "quantity": {
+                "amount": 1,
+                "unit": "teaspoon"
+            }
+        },
+        {
+            "name": "Black pepper",
+            "quantity": {
+                "amount": 0.5,
+                "unit": "teaspoon"
+            }
+        },
+        {
+            "name": "Carrots",
+            "quantity": {
+                "amount": 150,
+                "unit": "grams"
+            }
+        },
+        {
+            "name": "Parsley",
+            "quantity": {
+                "amount": 20,
+                "unit": "grams"
+            }
+        },
+        {
+            "name": "Turkish yogurt",
+            "quantity": {
+                "amount": 300,
+                "unit": "grams"
+            }
+        }
+    ],
+    "Recipe": [
+        "Fill in..."
+    ]
+}
