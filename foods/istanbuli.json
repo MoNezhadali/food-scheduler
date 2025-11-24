@@ -20,8 +20,7 @@
             "name": "Onion",
             "quantity": {
                 "amount": 150,
-                "unit": "grams",
-                "notes": "1 medium onion is about 150 grams"
+                "unit": "grams"
             }
         },
         {
