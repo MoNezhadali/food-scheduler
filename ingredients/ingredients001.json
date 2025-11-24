@@ -1,88 +1,5 @@
 [
     {
-        "name": "rice",
-        "display_name": "Rice",
-        "unit": {
-            "cup": 1,
-            "cups": 1,
-            "gram": 150,
-            "grams": 150
-        },
-        "food_group": "grains-and-starches",
-        "allergens": []
-    },
-    {
-        "name": "ground-meat-lamb-beef",
-        "display_name": "Ground Meat (Lamb or Beef)",
-        "unit": {
-            "gram": 1,
-            "grams": 1
-        },
-        "food_group": "meats-and-proteins",
-        "allergens": ["red-meat"]
-    },
-    {
-        "name": "onion",
-        "display_name": "Onion",
-        "unit": {
-            "gram": 200,
-            "grams": 200,
-            "small": 3,
-            "medium": 1.5,
-            "large": 1
-        },
-        "food_group": "fruits-and-vegetables",
-        "allergens": []
-    },
-    {
-        "name": "tomato-paste",
-        "display_name": "Tomato Paste",
-        "unit": {
-            "tablespoon": 1,
-            "tablespoons": 1,
-            "gram": 15,
-            "grams": 15
-        },
-        "food_group": "canned-and-jarred-goods",
-        "allergens": []
-    },
-    {
-        "name": "olive-oil",
-        "display_name": "Olive Oil",
-        "unit": {
-            "tablespoon": 1,
-            "tablespoons": 1,
-            "milliliter": 15,
-            "milliliters": 15
-        },
-        "food_group": "oils-and-fats",
-        "allergens": []
-    },
-    {
-        "name": "salt",
-        "display_name": "Salt",
-        "unit": {
-            "teaspoon": 1,
-            "teaspoons": 1,
-            "gram": 3,
-            "grams": 3
-        },
-        "food_group": "spices-and-seasonings",
-        "allergens": []
-    },
-    {
-        "name": "turmeric",
-        "display_name": "Turmeric",
-        "unit": {
-            "teaspoon": 1,
-            "teaspoons": 1,
-            "gram": 3,
-            "grams": 3
-        },
-        "food_group": "spices-and-seasonings",
-        "allergens": []
-    },
-    {
         "name": "black-pepper",
         "display_name": "Black Pepper",
         "unit": {
@@ -120,6 +37,77 @@
         "allergens": []
     },
     {
+        "name": "ground-meat-lamb-beef",
+        "display_name": "Ground Meat (Lamb or Beef)",
+        "unit": {
+            "gram": 1,
+            "grams": 1
+        },
+        "food_group": "meats-and-proteins",
+        "allergens": ["red-meat"]
+    },
+    {
+        "name": "olive-oil",
+        "display_name": "Olive Oil",
+        "unit": {
+            "tablespoon": 1,
+            "tablespoons": 1,
+            "milliliter": 15,
+            "milliliters": 15
+        },
+        "food_group": "oils-and-fats",
+        "allergens": []
+    },
+    {
+        "name": "onion",
+        "display_name": "Onion",
+        "unit": {
+            "gram": 200,
+            "grams": 200,
+            "small": 3,
+            "medium": 1.5,
+            "large": 1
+        },
+        "food_group": "fruits-and-vegetables",
+        "allergens": []
+    },
+    {
+        "name": "rice",
+        "display_name": "Rice",
+        "unit": {
+            "cup": 1,
+            "cups": 1,
+            "gram": 150,
+            "grams": 150
+        },
+        "food_group": "grains-and-starches",
+        "allergens": []
+    },
+    {
+        "name": "salt",
+        "display_name": "Salt",
+        "unit": {
+            "teaspoon": 1,
+            "teaspoons": 1,
+            "gram": 3,
+            "grams": 3
+        },
+        "food_group": "spices-and-seasonings",
+        "allergens": []
+    },
+    {
+        "name": "tomato-paste",
+        "display_name": "Tomato Paste",
+        "unit": {
+            "tablespoon": 1,
+            "tablespoons": 1,
+            "gram": 15,
+            "grams": 15
+        },
+        "food_group": "canned-and-jarred-goods",
+        "allergens": []
+    },
+    {
         "name": "turkish-yogurt",
         "display_name": "Turkish Yogurt",
         "unit": {
@@ -128,5 +116,17 @@
         },
         "food_group": "dairy",
         "allergens": ["dairy"]
+    },
+    {
+        "name": "turmeric",
+        "display_name": "Turmeric",
+        "unit": {
+            "teaspoon": 1,
+            "teaspoons": 1,
+            "gram": 3,
+            "grams": 3
+        },
+        "food_group": "spices-and-seasonings",
+        "allergens": []
     }
 ]
