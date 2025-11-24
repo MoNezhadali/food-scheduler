@@ -1,5 +1,18 @@
 [
     {
+        "name": "bell-pepper",
+        "display_name": "Bell Peppers",
+        "unit": {
+            "gram": 150,
+            "grams": 150,
+            "small": 2,
+            "medium": 1.5,
+            "large": 1
+        },
+        "food_group": "fruits-and-vegetables",
+        "allergens": []
+    },
+    {
         "name": "black-pepper",
         "display_name": "Black Pepper",
         "unit": {
@@ -7,6 +20,16 @@
             "teaspoons": 1,
             "gram": 3,
             "grams": 3
+        },
+        "food_group": "spices-and-seasonings",
+        "allergens": []
+    },
+    {
+        "name": "cantarelle-sauce-powder",
+        "display_name": "Cantarelle Sauce Powder",
+        "unit": {
+            "gram": 1,
+            "grams": 1
         },
         "food_group": "spices-and-seasonings",
         "allergens": []
@@ -23,6 +46,29 @@
         },
         "food_group": "fruits-and-vegetables",
         "allergens": []
+    },
+    {
+        "name": "champignon-mushrooms",
+        "display_name": "Champignon Mushrooms",
+        "unit": {
+            "gram": 50,
+            "grams": 50,
+            "small": 3,
+            "medium": 2,
+            "large": 1
+        },
+        "food_group": "fruits-and-vegetables",
+        "allergens": []
+    },
+    {
+        "name": "chicken-breast",
+        "display_name": "Chicken Breast",
+        "unit": {
+            "gram": 1,
+            "grams": 1
+        },
+        "food_group": "meats-and-proteins",
+        "allergens": ["poultry"]
     },
     {
         "name": "fresh-parsley",
