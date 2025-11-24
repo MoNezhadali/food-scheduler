@@ -1,79 +1,80 @@
 {
-    "name": "Istanbuli",
+    "display_name": "Istanbuli",
+    "name": "istanbuli",
     "description": "A traditional Turkish dish made with rice, ground meat, and spices",
     "ingredients": [
         {
-            "name": "Rice",
+            "name": "rice",
             "quantity": {
                 "amount": 4,
                 "unit": "cups"
             }
         },
         {
-            "name": "Ground beef (lamb/beef)",
+            "name": "ground-meat-lamb-beef",
             "quantity": {
                 "amount": 500,
                 "unit": "grams"
             }
         },
         {
-            "name": "Onion",
+            "name": "onion",
             "quantity": {
                 "amount": 150,
                 "unit": "grams"
             }
         },
         {
-            "name": "Tomato paste",
+            "name": "tomato-paste",
             "quantity": {
                 "amount": 2,
                 "unit": "tablespoons"
             }
         },
         {
-            "name": "Vegetable oil",
+            "name": "olive-oil",
             "quantity": {
                 "amount": 2,
                 "unit": "tablespoons"
             }
         },
         {
-            "name": "Salt",
+            "name": "salt",
             "quantity": {
                 "amount": 1,
                 "unit": "teaspoon"
             }
         },
         {
-            "name":"Turmeric",
+            "name":"turmeric",
             "quantity": {
                 "amount": 0.5,
                 "unit": "teaspoon"
             }
         },
         {
-            "name": "Black pepper",
+            "name": "black-pepper",
             "quantity": {
                 "amount": 0.5,
                 "unit": "teaspoon"
             }
         },
         {
-            "name": "Carrots",
+            "name": "carrots",
             "quantity": {
                 "amount": 150,
                 "unit": "grams"
             }
         },
         {
-            "name": "Parsley",
+            "name": "fresh-parsley",
             "quantity": {
                 "amount": 20,
                 "unit": "grams"
             }
         },
         {
-            "name": "Turkish yogurt",
+            "name": "turkish-yogurt",
             "quantity": {
                 "amount": 300,
                 "unit": "grams"
