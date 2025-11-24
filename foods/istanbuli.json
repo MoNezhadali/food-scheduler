@@ -5,7 +5,7 @@
         {
             "name": "Rice",
             "quantity": {
-                "amount": 2,
+                "amount": 4,
                 "unit": "cups"
             }
         },
@@ -31,13 +31,6 @@
             }
         },
         {
-            "name": "Butter",
-            "quantity": {
-                "amount": 3,
-                "unit": "tablespoons"
-            }
-        },
-        {
             "name": "Vegetable oil",
             "quantity": {
                 "amount": 2,
@@ -48,6 +41,13 @@
             "name": "Salt",
             "quantity": {
                 "amount": 1,
+                "unit": "teaspoon"
+            }
+        },
+        {
+            "name":"Turmeric",
+            "quantity": {
+                "amount": 0.5,
                 "unit": "teaspoon"
             }
         },
