@@ -2,6 +2,7 @@
     "display_name": "Istanbuli",
     "name": "istanbuli",
     "description": "A traditional Turkish dish made with rice, ground meat, and spices",
+    "portions": 4,
     "ingredients": [
         {
             "name": "rice",
@@ -83,5 +84,6 @@
     ],
     "Recipe": [
         "Fill in..."
-    ]
+    ],
+    "labels": ["main-course", "meat", "middle-eastern"]
 }
