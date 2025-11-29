@@ -174,5 +174,51 @@
         },
         "food_group": "spices-and-seasonings",
         "allergens": []
+    },
+    {
+        "name": "sangak-bread",
+        "display_name": "Sangak Bread",
+        "unit": {
+            "gram": 200,
+            "grams": 200,
+            "loaf": 1,
+            "loaves": 1
+        },
+        "food_group": "grains-and-starches",
+        "allergens": ["gluten"]
+    },
+    {
+        "name": "sheep-cheese",
+        "display_name": "Sheep Cheese",
+        "unit": {
+            "gram": 1,
+            "grams": 1
+        },
+        "food_group": "dairy",
+        "allergens": ["dairy"]
+    },
+    {
+        "name": "fresh-mint",
+        "display_name": "Fresh Mint",
+        "unit": {
+            "gram": 20,
+            "grams": 20,
+            "bunch": 1,
+            "bunches": 1
+        },
+        "food_group": "fruits-and-vegetables",
+        "allergens": []
+    },
+    {
+        "name": "walnuts",
+        "display_name": "Walnuts",
+        "unit": {
+            "gram": 120,
+            "grams": 120,
+            "cup":  1,
+            "cups": 1
+        },
+        "food_group": "nuts-and-seeds",
+        "allergens": ["nuts"]
     }
 ]
