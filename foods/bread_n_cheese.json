@@ -2,6 +2,7 @@
     "name":"bread-n-cheese",
     "display_name":"Bread & Cheese",
     "description":"Bibusia's favorite Iranian snack",
+    "portions":2,
     "ingredients":[
         {
             "name":"sangak-bread",
@@ -34,5 +35,6 @@
     ],
     "recipe":[
         "Fill in..."
-    ]
+    ],
+    "labels": ["vegetarian", "snack"]
 }
