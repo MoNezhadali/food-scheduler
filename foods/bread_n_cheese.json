@@ -1,0 +1,38 @@
+{
+    "name":"bread-n-cheese",
+    "display_name":"Bread & Cheese",
+    "description":"Bibusia's favorite Iranian snack",
+    "ingredients":[
+        {
+            "name":"sangak-bread",
+            "quantity":{
+                "amount":300,
+                "unit":"grams"
+            }
+        },
+        {
+            "name":"sheep-cheese",
+            "quantity":{
+                "amount":200,
+                "unit":"grams"
+            }
+        },
+        {
+            "name": "fresh-mint",
+            "quantity": {
+                "amount": 80,
+                "unit": "grams"
+            }
+        },
+        {
+            "name": "walnuts",
+            "quantity": {
+                "amount": 200,
+                "unit": "grams"
+            }
+        }
+    ],
+    "recipe":[
+        "Fill in..."
+    ]
+}
