@@ -1,0 +1,30 @@
+{
+    "vegetarian":{
+        "name":"Vegetarian",
+        "description":"Contains no meat or fish products"
+    },
+    "dinner":{
+        "name":"main-course",
+        "description":"Main course meals typically served for dinner"
+    },
+    "asian":{
+        "name":"Asian",
+        "description":"Dishes inspired by Asian cuisine"
+    },
+    "snack":{
+        "name":"Snack",
+        "description":"Light food items suitable for snacking"
+    },
+    "red-meat":{
+        "name":"Red Meat",
+        "description":"Contains red meat such as beef or lamb"
+    },
+    "poultry":{
+        "name":"Poultry",
+        "description":"Contains poultry products such as chicken or turkey"
+    },
+    "middle-eastern":{
+        "name":"Middle Eastern",
+        "description":"Dishes inspired by Middle Eastern cuisine"
+    }
+}
