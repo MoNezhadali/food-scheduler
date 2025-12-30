@@ -6,7 +6,7 @@ from typing import Dict, List
 from pydantic import BaseModel
 
 
-class ingredient(BaseModel):
+class Ingredient(BaseModel):
     name: str
     display_name: str
     unit: Dict[str, int]
