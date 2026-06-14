@@ -107,8 +107,42 @@ go run ./cmd/seed
 ## Phase 4b — Nutrition Enrichment CLI 🔜
 Planned: `make enrich` — interactive USDA FoodData Central lookup for ingredients with NULL nutrition.
 
-## Phase 5 — Auth Use-Cases + HTTP 🔜
-Planned: register/login/refresh endpoints, JWT middleware, `GET /health`.
+## Phase 5 — Auth Use-Cases + HTTP ✅
+**Date:** 2026-06-14
+**Branch:** main
+
+### What was built
+- **`migrations/sqlite/000006_add_user_role.up.sql`**: `ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user'`
+- **`internal/domain/user/entity.go`**: added `Role string // "user" | "admin"` field to `User` struct
+- **`internal/adapters/secondary/sqlite/user_repo.go`**: updated to persist/scan `role` column; defaults to `"user"` on create
+- **`internal/infrastructure/auth/jwt.go`**: `JWTService` with `IssueTokens()` (HS256, 15min access + 7d refresh) and `Validate()`. Defines `TokenPair`, `Claims`, `TokenType`, and the `Service` interface used by the application layer
+- **`internal/application/user/register.go`**: validates email (contains @) and password (≥8 chars), bcrypts, calls `UserRepo.Create`
+- **`internal/application/user/login.go`**: fetches by email, bcrypt compare, issues JWT pair; doesn't reveal whether email exists
+- **`internal/application/user/refresh.go`**: validates refresh token, re-fetches user to confirm existence, issues new token pair
+- **`internal/adapters/primary/http/`**: Chi router wired with RequestID + logging + recovery middleware
+  - `middleware/logging.go`: structured slog logging per request
+  - `middleware/recovery.go`: panic recovery → 500 JSON
+  - `middleware/auth.go`: JWT Bearer validation; sets `*auth.Claims` in context; `ClaimsFromContext()` helper for handlers
+  - `handlers/response.go`: `writeJSON()`, `writeError()`, `httpStatusFromError()` (maps domain errors → HTTP codes)
+  - `handlers/health.go`: `GET /health` with DB ping
+  - `handlers/user.go`: `POST /v1/auth/register`, `/login`, `/refresh`
+  - `router.go`: Chi router with public group (`/health`, `/v1/auth/*`) and protected group (populated Phase 6+)
+- **`cmd/server/main.go`**: full wiring — OpenSQLite → RunMigrations → JWTService → repos → use-cases → handlers → router → `http.ListenAndServe`
+
+### Tests
+- 10 JWT service tests (issue, validate access/refresh, wrong type, bad signature, tampered token)
+- 10 use-case tests (register: ok, invalid email, short password, duplicate; login: ok, wrong pw, not found; refresh: ok, bad token, deleted user)
+
+### Verify
+```bash
+go test ./...  # all packages green
+# Then in a terminal:
+DB_PATH=":memory:" JWT_SECRET="test-secret" PORT=9099 ./foodscheduler
+curl http://localhost:9099/health                        # {"status":"ok"}
+curl -X POST localhost:9099/v1/auth/register -d '{"email":"a@b.com","password":"pass1234"}'
+curl -X POST localhost:9099/v1/auth/login -d '{"email":"a@b.com","password":"pass1234"}'
+curl -X POST localhost:9099/v1/auth/refresh -d '{"refresh_token":"<from above>"}'
+```
 
 ## Phase 6 — Ingredient CRUD 🔜
 ## Phase 7 — Food CRUD + Nutrition Computation 🔜

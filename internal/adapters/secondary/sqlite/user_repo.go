@@ -31,6 +31,9 @@ func (r *UserRepo) GetByEmail(ctx context.Context, email string) (user.User, err
 
 func (r *UserRepo) Create(ctx context.Context, u user.User) (user.User, error) {
 	u.ID = uuid.NewString()
+	if u.Role == "" {
+		u.Role = "user"
+	}
 	ts := nowStr()
 	u.CreatedAt, _ = parseTime(ts)
 	u.UpdatedAt = u.CreatedAt
@@ -42,9 +45,9 @@ func (r *UserRepo) Create(ctx context.Context, u user.User) (user.User, error) {
 	defer tx.Rollback() //nolint:errcheck
 
 	_, err = tx.ExecContext(ctx, `
-		INSERT INTO users (id, email, password_hash, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?)`,
-		u.ID, u.Email, u.PasswordHash, ts, ts,
+		INSERT INTO users (id, email, password_hash, role, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?)`,
+		u.ID, u.Email, u.PasswordHash, u.Role, ts, ts,
 	)
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE") {
@@ -97,7 +100,7 @@ func (r *UserRepo) UpdatePreferences(ctx context.Context, id string, prefs user.
 
 func (r *UserRepo) getUser(ctx context.Context, where string, arg any) (user.User, error) {
 	row := r.db.QueryRowContext(ctx, `
-		SELECT u.id, u.email, u.password_hash, u.created_at, u.updated_at,
+		SELECT u.id, u.email, u.password_hash, u.role, u.created_at, u.updated_at,
 		       COALESCE(p.excluded_allergens, '[]'),
 		       COALESCE(p.dietary_restrictions, '[]')
 		FROM users u
@@ -105,12 +108,12 @@ func (r *UserRepo) getUser(ctx context.Context, where string, arg any) (user.Use
 		`+where, arg)
 
 	var (
-		id, email, passwordHash  string
-		createdAt, updatedAt     string
-		allergensJSON, dietsJSON string
+		id, email, passwordHash, role string
+		createdAt, updatedAt          string
+		allergensJSON, dietsJSON      string
 	)
 	if err := row.Scan(
-		&id, &email, &passwordHash, &createdAt, &updatedAt,
+		&id, &email, &passwordHash, &role, &createdAt, &updatedAt,
 		&allergensJSON, &dietsJSON,
 	); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -133,6 +136,7 @@ func (r *UserRepo) getUser(ctx context.Context, where string, arg any) (user.Use
 		ID:           id,
 		Email:        email,
 		PasswordHash: passwordHash,
+		Role:         role,
 		Preferences: user.Preferences{
 			ExcludedAllergens:   allergens,
 			DietaryRestrictions: diets,

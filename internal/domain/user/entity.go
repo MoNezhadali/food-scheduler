@@ -11,6 +11,7 @@ type User struct {
 	ID           string
 	Email        string
 	PasswordHash string
+	Role         string // "user" | "admin"
 	Preferences  Preferences
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
