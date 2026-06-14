@@ -1,1 +1,21 @@
 virtualEnv/
+
+# Go
+bin/
+*.exe
+*.test
+
+# SQLite
+*.db
+*.db-shm
+*.db-wal
+
+# Environment (never commit secrets)
+.env
+
+# Air hot-reload temp dir
+tmp/
+
+# IDE
+.vscode/
+.idea/
