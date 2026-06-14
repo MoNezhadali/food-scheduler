@@ -3,7 +3,7 @@ CMD    = ./cmd/server
 
 .PHONY: build dev test lint clean \
         migrate-up migrate-down seed enrich \
-        docker-build
+        docker-build docker-up docker-up-pg docker-down
 
 ## ── Build ────────────────────────────────────────────────────────────────────
 
@@ -47,10 +47,18 @@ enrich:
 	go run ./cmd/enrich
 
 ## ── Docker ───────────────────────────────────────────────────────────────────
-# Dockerfile added in Phase 13.
 
 docker-build:
 	docker build -t $(BINARY):latest .
+
+docker-up:
+	docker compose up --build
+
+docker-up-pg:
+	docker compose --profile postgres up --build
+
+docker-down:
+	docker compose --profile postgres down
 
 ## ── Housekeeping ─────────────────────────────────────────────────────────────
 

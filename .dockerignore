@@ -1,0 +1,29 @@
+# Version control
+.git/
+.gitignore
+
+# Local environment & secrets
+.env
+*.env
+
+# Build artefacts
+bin/
+*.db
+*.db-wal
+*.db-shm
+
+# Dev / IDE
+.sandbox/
+.vscode/
+.idea/
+*.code-workspace
+
+# Test artefacts
+coverage/
+*.out
+
+# CI
+.github/
+
+# Docs (not needed in image)
+*.md

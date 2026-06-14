@@ -351,6 +351,47 @@ go build ./... # clean
 
 ---
 
-## Phase 13 — Dockerfile + CI 🔜
+## Phase 13 — Dockerfile + CI ✅
+
+**Date:** 2026-06-14
+**Branch:** main
+
+### Deliverables
+
+- **`Dockerfile`** — two-stage build:
+  - Stage 1 (`golang:1.26-alpine`): downloads modules separately (cache-friendly), then compiles with `CGO_ENABLED=0 -trimpath -ldflags="-s -w"` for a fully static binary
+  - Stage 2 (`scratch`): copies only the binary + CA certs + timezone data — image is ~15 MB
+  - Migrations are embedded in the binary (via `go:embed`), so no SQL files needed at runtime
+- **`.dockerignore`** — excludes `.git`, `.env`, `bin/`, `*.db`, `.sandbox/`, IDE dirs to keep build context lean
+- **`.github/workflows/ci.yml`** — GitHub Actions CI with two jobs:
+  - `test`: checkout → setup-go (version from `go.mod`, module cache enabled) → `go vet ./...` → `go test -race -count=1 ./...` → `go build`
+  - `docker`: Docker Buildx build (no push) with GHA layer cache, runs only after `test` passes
+- **`docker-compose.yml`** updated:
+  - Default `app` service uses SQLite + `/data` volume
+  - New `app-pg` + `postgres:16-alpine` services behind `--profile postgres`; postgres healthcheck gates app startup
+- **`Makefile`** updated: added `docker-up`, `docker-up-pg`, `docker-down` targets
+
+### Running with Docker
+
+```bash
+# SQLite (default)
+make docker-up           # docker compose up --build
+
+# PostgreSQL
+make docker-up-pg        # docker compose --profile postgres up --build
+
+# Tear down
+make docker-down
+```
+
+### Verify (Phase 13)
+
+```bash
+go test ./...  # 97 tests pass
+go build ./... # clean
+docker build -t foodscheduler:latest .  # requires Docker
+```
+
+---
 
 ## Phase 14 — OpenAPI Docs 🔜

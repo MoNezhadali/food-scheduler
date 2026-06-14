@@ -2,28 +2,51 @@ version: "3.9"
 
 services:
   app:
-    build: .          # Dockerfile added in Phase 13
+    build: .
     ports:
       - "${PORT:-8080}:8080"
     env_file:
       - .env
+    environment:
+      DB_DRIVER: sqlite
+      DB_PATH: /data/foodscheduler.db
     volumes:
       - db-data:/data
-    environment:
-      DB_PATH: /data/foodscheduler.db
+    depends_on: []
 
-  # Uncomment in Phase 12 when the Postgres adapter is ready.
-  # postgres:
-  #   image: postgres:16-alpine
-  #   environment:
-  #     POSTGRES_USER: foodscheduler
-  #     POSTGRES_PASSWORD: foodscheduler
-  #     POSTGRES_DB: foodscheduler
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - pg-data:/var/lib/postgresql/data
+  # ── PostgreSQL variant ──────────────────────────────────────────────────────
+  # Bring up with: docker compose --profile postgres up
+  app-pg:
+    build: .
+    profiles: [postgres]
+    ports:
+      - "${PORT:-8080}:8080"
+    env_file:
+      - .env
+    environment:
+      DB_DRIVER: postgres
+      DB_URL: postgres://foodscheduler:foodscheduler@postgres:5432/foodscheduler?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    profiles: [postgres]
+    environment:
+      POSTGRES_USER: foodscheduler
+      POSTGRES_PASSWORD: foodscheduler
+      POSTGRES_DB: foodscheduler
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U foodscheduler"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
 volumes:
   db-data:
-  # pg-data:
+  pg-data:
