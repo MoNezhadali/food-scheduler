@@ -169,7 +169,33 @@ go test ./...  # all packages green (52 tests)
 ```
 
 ## Phase 6 — Ingredient CRUD (old marker, replaced above)
-## Phase 7 — Food CRUD + Nutrition Computation 🔜
+## Phase 7 — Food CRUD + Nutrition Computation ✅
+**Date:** 2026-06-14
+**Branch:** main
+
+### What was built
+- **`handlers/food.go`**: `FoodHandler` with `List`, `GetByID`, `Create`, `Update`, `Delete`
+  - `Create`/`Update` compute nutrition from ingredients at write time via `food.ComputeNutrition()`
+  - `portions` defaults to 4 if 0/omitted
+  - Validates: name required, display_name required, ≥1 ingredient, each ingredient has id + amount > 0 + unit
+  - `List` filters: `label` (repeatable, ALL must match), `allergen_free` (repeatable), `search`
+- **`handlers/food_test.go`**: 10 integration tests (httptest + real SQLite in-memory)
+  - CRUD lifecycle, nutrition computation verified to 0.1 precision, filters, auth/role checks
+- **Router** updated with `/v1/foods` routes (same auth/admin split as ingredients)
+- **`cmd/server/main.go`** wires `FoodRepo` + `FoodHandler`
+
+### Nutrition on write
+1. Handler extracts ingredient IDs from request body
+2. Fetches full ingredient entities from `IngredientRepo.GetByIDs()`
+3. Calls `food.ComputeNutrition(f, ingredientMap)` — sums base-unit nutrition, divides by portions
+4. Stores 8 nutrition columns (total + per-portion for cal/prot/carbs/fat) in the food row
+
+### Verify
+```bash
+go test ./...  # 62 tests, all green
+```
+
+## Phase 7 — Food CRUD + Nutrition Computation (old marker, replaced above)
 ## Phase 8 — Shopping List Endpoint 🔜
 ## Phase 9 — Random Meal Plan Endpoint 🔜
 ## Phase 10 — User Preferences 🔜

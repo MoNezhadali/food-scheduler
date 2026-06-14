@@ -18,6 +18,7 @@ type RouterDeps struct {
 	Health     *handlers.HealthHandler
 	User       *handlers.UserHandler
 	Ingredient *handlers.IngredientHandler
+	Food       *handlers.FoodHandler
 }
 
 func NewRouter(deps RouterDeps) http.Handler {
@@ -48,6 +49,17 @@ func NewRouter(deps RouterDeps) http.Handler {
 					r.Post("/", deps.Ingredient.Create)
 					r.Put("/{id}", deps.Ingredient.Update)
 					r.Delete("/{id}", deps.Ingredient.Delete)
+				})
+			})
+
+			r.Route("/foods", func(r chi.Router) {
+				r.Get("/", deps.Food.List)
+				r.Get("/{id}", deps.Food.GetByID)
+				r.Group(func(r chi.Router) {
+					r.Use(middleware.RequireRole("admin"))
+					r.Post("/", deps.Food.Create)
+					r.Put("/{id}", deps.Food.Update)
+					r.Delete("/{id}", deps.Food.Delete)
 				})
 			})
 		})

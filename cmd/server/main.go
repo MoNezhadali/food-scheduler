@@ -47,6 +47,7 @@ func main() {
 	// Repositories
 	userRepo := sqliteadapter.NewUserRepo(db)
 	ingRepo := sqliteadapter.NewIngredientRepo(db)
+	foodRepo := sqliteadapter.NewFoodRepo(db)
 
 	// Use-cases
 	registerUC := appuser.NewRegisterUseCase(userRepo)
@@ -57,6 +58,7 @@ func main() {
 	healthHandler := handlers.NewHealthHandler(db)
 	userHandler := handlers.NewUserHandler(registerUC, loginUC, refreshUC)
 	ingHandler := handlers.NewIngredientHandler(ingRepo)
+	foodHandler := handlers.NewFoodHandler(foodRepo, ingRepo)
 
 	// Router
 	router := httpadapter.NewRouter(httpadapter.RouterDeps{
@@ -65,6 +67,7 @@ func main() {
 		Health:     healthHandler,
 		User:       userHandler,
 		Ingredient: ingHandler,
+		Food:       foodHandler,
 	})
 
 	addr := fmt.Sprintf(":%d", cfg.Port)
