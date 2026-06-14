@@ -53,8 +53,37 @@ go run ./cmd/server  # prints JSON startup log
 go test ./internal/domain/... -v   # 16 PASS, 0 FAIL
 ```
 
-## Phase 3 — SQLite Adapter + Migrations 🔜
-Planned: DB connection, migration files, SQLite implementations of all repository interfaces.
+## Phase 3 — SQLite Adapter + Migrations ✅
+**Date:** 2026-06-14
+**Branch:** main
+
+### What was built
+- **Dependencies**: `modernc.org/sqlite` (pure Go, no CGO), `github.com/google/uuid`
+- **Migration files** (`migrations/sqlite/`): 5 versioned up/down pairs — ingredients, foods, food_ingredients (with FK + index), users, user_preferences
+- **`migrations/embed.go`**: embeds SQL files into the binary via `//go:embed sqlite`
+- **`internal/infrastructure/database/`**:
+  - `sqlite.go`: `OpenSQLite(path)` — opens connection, enables WAL + foreign keys
+  - `migrate.go`: `RunMigrations(db, fs, dialect)` — lightweight custom runner; tracks applied versions in `_schema_migrations` table; safe to re-run
+- **`internal/adapters/secondary/sqlite/`**: three repository implementations
+  - `ingredient_repo.go`: full CRUD + `ListMissingNutrition` + `UpdateNutrition`; in-Go filtering for food group, allergens, search
+  - `food_repo.go`: full CRUD with transactional create/update (food + food_ingredients atomically); allergen filtering loads ingredient allergens in one extra query
+  - `user_repo.go`: create (user + preferences row in one tx), get by ID/email, update preferences
+  - `helpers.go`: shared JSON marshal/unmarshal, timestamp formatting, SQL IN-clause helpers
+- **Integration tests** (all against `:memory:` SQLite — fast, no disk I/O):
+  - 12 ingredient tests: CRUD, filters, nutrition update
+  - 9 food tests: CRUD, label filter, allergen exclusion, cascade delete, GetByIDs
+  - 6 user tests: CRUD, preferences, duplicate email, not-found
+
+### Key design decisions
+- JSON strings in SQLite for arrays (`allergens`, `labels`, `recipe`) and maps (`unit_map`) — simple, portable
+- Allergen filtering in food list: loads only the allergen column of affected ingredients (not full objects)
+- `food_ingredients` replace-on-update: DELETE + re-INSERT in the same transaction — simpler than diffing
+- FK `ON DELETE CASCADE` on `food_ingredients.food_id`; `ON DELETE RESTRICT` on `ingredient_id` (can't delete ingredient in use)
+
+### Verify
+```bash
+go test ./...   # all packages green
+```
 
 ## Phase 4 — Seeder 🔜
 Planned: load existing JSON files from `foods/` and `ingredients/` into DB.
