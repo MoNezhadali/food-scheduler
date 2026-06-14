@@ -13,12 +13,13 @@ import (
 )
 
 type RouterDeps struct {
-	Logger     *slog.Logger
-	TokenSvc   auth.Service
-	Health     *handlers.HealthHandler
-	User       *handlers.UserHandler
-	Ingredient *handlers.IngredientHandler
-	Food       *handlers.FoodHandler
+	Logger       *slog.Logger
+	TokenSvc     auth.Service
+	Health       *handlers.HealthHandler
+	User         *handlers.UserHandler
+	Ingredient   *handlers.IngredientHandler
+	Food         *handlers.FoodHandler
+	ShoppingList *handlers.ShoppingListHandler
 }
 
 func NewRouter(deps RouterDeps) http.Handler {
@@ -62,6 +63,8 @@ func NewRouter(deps RouterDeps) http.Handler {
 					r.Delete("/{id}", deps.Food.Delete)
 				})
 			})
+
+			r.Post("/shopping-list", deps.ShoppingList.Generate)
 		})
 	})
 

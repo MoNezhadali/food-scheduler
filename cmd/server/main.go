@@ -59,15 +59,17 @@ func main() {
 	userHandler := handlers.NewUserHandler(registerUC, loginUC, refreshUC)
 	ingHandler := handlers.NewIngredientHandler(ingRepo)
 	foodHandler := handlers.NewFoodHandler(foodRepo, ingRepo)
+	slHandler := handlers.NewShoppingListHandler(foodRepo, ingRepo)
 
 	// Router
 	router := httpadapter.NewRouter(httpadapter.RouterDeps{
-		Logger:     log,
-		TokenSvc:   tokenSvc,
-		Health:     healthHandler,
-		User:       userHandler,
-		Ingredient: ingHandler,
-		Food:       foodHandler,
+		Logger:       log,
+		TokenSvc:     tokenSvc,
+		Health:       healthHandler,
+		User:         userHandler,
+		Ingredient:   ingHandler,
+		Food:         foodHandler,
+		ShoppingList: slHandler,
 	})
 
 	addr := fmt.Sprintf(":%d", cfg.Port)

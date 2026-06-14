@@ -21,10 +21,6 @@ type foodStore interface {
 	Delete(ctx context.Context, id string) error
 }
 
-type ingredientFetcher interface {
-	GetByIDs(ctx context.Context, ids []string) ([]ingredient.Ingredient, error)
-}
-
 type FoodHandler struct {
 	foods       foodStore
 	ingredients ingredientFetcher

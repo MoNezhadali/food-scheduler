@@ -196,7 +196,28 @@ go test ./...  # 62 tests, all green
 ```
 
 ## Phase 7 — Food CRUD + Nutrition Computation (old marker, replaced above)
-## Phase 8 — Shopping List Endpoint 🔜
+## Phase 8 — Shopping List Endpoint ✅
+**Date:** 2026-06-14
+**Branch:** main
+
+### What was built
+- **`handlers/interfaces.go`**: shared `ingredientFetcher` and `foodFetcher` interfaces (extracted from food.go so both FoodHandler and ShoppingListHandler can reference them)
+- **`handlers/shopping_list.go`**: `ShoppingListHandler.Generate` — `POST /v1/shopping-list`
+  1. Validates `food_ids` non-empty
+  2. Fetches foods by IDs (`FoodRepo.GetByIDs`)
+  3. Collects unique ingredient IDs, fetches ingredient entities
+  4. Calls `shoppinglist.Generate(foods, ingMap)` domain service
+  5. Returns grouped response: `{total_items, categories: {food_group: [{ingredient_id, name, display_name, total_amount, unit}]}}`
+- **`handlers/shopping_list_test.go`**: 5 tests — aggregation across 2 foods (rice shared: 200+150=350g), single food, empty food_ids → 400, no auth → 401, unknown IDs → empty list
+- **Router**: `POST /v1/shopping-list` added under the authenticated group
+- **`cmd/server/main.go`** wires `ShoppingListHandler`
+
+### Verify
+```bash
+go test ./...  # 67 tests, all green
+```
+
+## Phase 8 — Shopping List Endpoint (old marker, replaced above)
 ## Phase 9 — Random Meal Plan Endpoint 🔜
 ## Phase 10 — User Preferences 🔜
 ## Phase 11 — Security Hardening 🔜
