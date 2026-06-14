@@ -60,6 +60,7 @@ func main() {
 	ingHandler := handlers.NewIngredientHandler(ingRepo)
 	foodHandler := handlers.NewFoodHandler(foodRepo, ingRepo)
 	slHandler := handlers.NewShoppingListHandler(foodRepo, ingRepo)
+	mpHandler := handlers.NewMealPlanHandler(foodRepo)
 
 	// Router
 	router := httpadapter.NewRouter(httpadapter.RouterDeps{
@@ -70,6 +71,7 @@ func main() {
 		Ingredient:   ingHandler,
 		Food:         foodHandler,
 		ShoppingList: slHandler,
+		MealPlan:     mpHandler,
 	})
 
 	addr := fmt.Sprintf(":%d", cfg.Port)

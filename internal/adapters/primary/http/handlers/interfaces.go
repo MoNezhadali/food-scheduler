@@ -16,3 +16,8 @@ type ingredientFetcher interface {
 type foodFetcher interface {
 	GetByIDs(ctx context.Context, ids []string) ([]food.Food, error)
 }
+
+// foodLister is satisfied by FoodRepo.
+type foodLister interface {
+	List(ctx context.Context, filter food.Filter) ([]food.Food, error)
+}

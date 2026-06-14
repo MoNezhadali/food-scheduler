@@ -20,6 +20,7 @@ type RouterDeps struct {
 	Ingredient   *handlers.IngredientHandler
 	Food         *handlers.FoodHandler
 	ShoppingList *handlers.ShoppingListHandler
+	MealPlan     *handlers.MealPlanHandler
 }
 
 func NewRouter(deps RouterDeps) http.Handler {
@@ -65,6 +66,7 @@ func NewRouter(deps RouterDeps) http.Handler {
 			})
 
 			r.Post("/shopping-list", deps.ShoppingList.Generate)
+			r.Post("/meal-plan", deps.MealPlan.Generate)
 		})
 	})
 

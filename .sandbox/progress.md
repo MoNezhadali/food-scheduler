@@ -218,7 +218,35 @@ go test ./...  # 67 tests, all green
 ```
 
 ## Phase 8 — Shopping List Endpoint (old marker, replaced above)
-## Phase 9 — Random Meal Plan Endpoint 🔜
+## Phase 9 — Random Meal Plan Endpoint ✅
+**Date:** 2026-06-14
+**Branch:** main
+
+### What was built
+- **`domain/mealplan/planner.go`** updated: implemented preference satisfaction
+  - Two-phase selection: first satisfy `min_beef`/`min_chicken`/`min_fish`/`min_pork` by selecting from label-matched foods; then fill remaining slots randomly from the rest of the pool
+  - Returns `ErrInsufficientFoods` if not enough foods match a minimum constraint
+  - 4 new domain tests (minBeef, minBeef+minChicken, no-repeats-with-prefs, insufficient-for-preference)
+- **`handlers/meal_plan.go`**: `MealPlanHandler.Generate` — `POST /v1/meal-plan`
+  1. Validates `count >= 1`
+  2. Builds `food.Filter` from `allergen_free` and `labels` fields
+  3. Fetches filtered pool from `FoodRepo.List()`
+  4. Calls `mealplan.Plan()` domain service
+  5. Returns `{count, foods: [full food objects...]}`
+  6. Maps `ErrInsufficientFoods` → 422 Unprocessable Entity with code `INSUFFICIENT_FOODS`
+- **`handlers/interfaces.go`**: added `foodLister` interface
+- **`handlers/meal_plan_test.go`**: 7 integration tests — basic count, no repeats, preferences (beef+chicken guaranteed over 10 runs), allergen filter, insufficient foods → 422, count=0 → 400, no auth → 401
+- **Router**: `POST /v1/meal-plan` added under authenticated group
+
+### Preference convention
+Foods must be labelled `"beef"`, `"chicken"`, `"fish"`, or `"pork"` by admins for minimum constraints to be honoured. The label is the lookup key in the pool.
+
+### Verify
+```bash
+go test ./...  # 78 tests, all green
+```
+
+## Phase 9 — Random Meal Plan Endpoint (old marker, replaced above)
 ## Phase 10 — User Preferences 🔜
 ## Phase 11 — Security Hardening 🔜
 ## Phase 12 — PostgreSQL Adapter 🔜
