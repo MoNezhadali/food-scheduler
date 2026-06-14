@@ -297,7 +297,59 @@ go test ./...  # 97 tests, all green
 
 ---
 
-## Phase 12 — PostgreSQL Adapter 🔜
+## Phase 12 — PostgreSQL Adapter ✅
+
+**Date:** 2026-06-14
+**Branch:** main
+
+### What was built
+
+- **`github.com/jackc/pgx/v5`** added as dependency (`pgx/v5/stdlib` for `database/sql` compatibility)
+- **`migrations/postgres/`** — 5 migration files (000001–000005):
+  - Columns typed as `TIMESTAMPTZ` (vs SQLite TEXT), `DOUBLE PRECISION` (vs REAL)
+  - Users table includes `role` from the start (no separate migration needed)
+  - JSON arrays/maps stored as TEXT — same scan code, no JSONB complexity
+- **`migrations/embed.go`** — exports `PostgresFS embed.FS`
+- **`internal/infrastructure/database/migrate.go`** — updated `applyMigration` to accept `dialect` and use `$1,$2,$3` placeholders for the tracking-table INSERT when dialect is "postgres"
+- **`internal/infrastructure/database/postgres.go`** — `OpenPostgres(url string) (*sql.DB, error)` with connection pool tuning (25 max open, 5 idle, 5 min lifetime)
+- **`internal/adapters/secondary/postgres/`** — new package `pgadapter`:
+  - `helpers.go`: `toJSON`, `fromJSON`, `inPlaceholders`, `inPlaceholdersAt`, `stringsToAny`
+  - `ingredient_repo.go`: full `ingredient.Repository` implementation using `$N` placeholders; timestamps scanned as `time.Time`; duplicate-key detection via `"duplicate key"` substring
+  - `food_repo.go`: full `food.Repository` implementation with transactional create/update
+  - `user_repo.go`: full `user.Repository` implementation
+  - `repos_test.go`: integration tests for all three repos — **skipped** unless `TEST_PG_URL` env var is set; covers CRUD, duplicate detection, filters
+- **`cmd/server/main.go`** — rewritten to select adapter by `cfg.DBDriver`:
+  - `"postgres"` → `OpenPostgres` + `PostgresFS` + pgadapter repos
+  - `"sqlite"` (default) → `OpenSQLite` + `SQLiteFS` + sqliteadapter repos
+  - Repo variables typed as domain `Repository` interfaces (`domuser.Repository`, `doming.Repository`, `domfood.Repository`) so handler constructors accept either adapter
+
+### Architecture note
+
+The domain `food.Repository`, `ingredient.Repository`, and `user.Repository` interfaces act as the hexagonal port. Both `sqliteadapter` and `pgadapter` implement these interfaces — swapping drivers requires only changing `DB_DRIVER` (and `DB_URL` for postgres) in the environment.
+
+### Running with PostgreSQL
+
+```bash
+export DB_DRIVER=postgres
+export DB_URL=postgres://user:pass@localhost:5432/foodscheduler?sslmode=disable
+go run ./cmd/server
+```
+
+### Running PG integration tests
+
+```bash
+TEST_PG_URL=postgres://user:pass@localhost:5432/foodscheduler_test?sslmode=disable \
+  go test ./internal/adapters/secondary/postgres/...
+```
+
+### Build and test
+
+```bash
+go test ./...  # 97 tests pass; postgres package reports "ok" (tests skipped without TEST_PG_URL)
+go build ./... # clean
+```
+
+---
 
 ## Phase 13 — Dockerfile + CI 🔜
 

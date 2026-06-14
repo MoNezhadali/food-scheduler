@@ -8,12 +8,18 @@ import (
 
 	httpadapter "github.com/MoNezhadali/foodscheduler/internal/adapters/primary/http"
 	"github.com/MoNezhadali/foodscheduler/internal/adapters/primary/http/handlers"
+	pgadapter "github.com/MoNezhadali/foodscheduler/internal/adapters/secondary/postgres"
 	sqliteadapter "github.com/MoNezhadali/foodscheduler/internal/adapters/secondary/sqlite"
 	appuser "github.com/MoNezhadali/foodscheduler/internal/application/user"
+	domfood "github.com/MoNezhadali/foodscheduler/internal/domain/food"
+	doming "github.com/MoNezhadali/foodscheduler/internal/domain/ingredient"
+	domuser "github.com/MoNezhadali/foodscheduler/internal/domain/user"
 	"github.com/MoNezhadali/foodscheduler/internal/infrastructure/auth"
 	"github.com/MoNezhadali/foodscheduler/internal/infrastructure/config"
 	"github.com/MoNezhadali/foodscheduler/internal/infrastructure/database"
 	"github.com/MoNezhadali/foodscheduler/migrations"
+
+	"database/sql"
 )
 
 func main() {
@@ -25,17 +31,47 @@ func main() {
 		os.Exit(1)
 	}
 
-	db, err := database.OpenSQLite(cfg.DBPath)
-	if err != nil {
-		log.Error("failed to open database", "error", err)
-		os.Exit(1)
+	var (
+		db       *sql.DB
+		userRepo domuser.Repository
+		ingRepo  doming.Repository
+		foodRepo domfood.Repository
+	)
+
+	switch cfg.DBDriver {
+	case "postgres":
+		if cfg.DBURL == "" {
+			log.Error("DB_URL must be set when DB_DRIVER=postgres")
+			os.Exit(1)
+		}
+		db, err = database.OpenPostgres(cfg.DBURL)
+		if err != nil {
+			log.Error("failed to open postgres", "error", err)
+			os.Exit(1)
+		}
+		if err := database.RunMigrations(db, migrations.PostgresFS, "postgres"); err != nil {
+			log.Error("migrations failed", "error", err)
+			os.Exit(1)
+		}
+		userRepo = pgadapter.NewUserRepo(db)
+		ingRepo = pgadapter.NewIngredientRepo(db)
+		foodRepo = pgadapter.NewFoodRepo(db)
+
+	default: // "sqlite" or unset
+		db, err = database.OpenSQLite(cfg.DBPath)
+		if err != nil {
+			log.Error("failed to open database", "error", err)
+			os.Exit(1)
+		}
+		if err := database.RunMigrations(db, migrations.SQLiteFS, "sqlite"); err != nil {
+			log.Error("migrations failed", "error", err)
+			os.Exit(1)
+		}
+		userRepo = sqliteadapter.NewUserRepo(db)
+		ingRepo = sqliteadapter.NewIngredientRepo(db)
+		foodRepo = sqliteadapter.NewFoodRepo(db)
 	}
 	defer db.Close()
-
-	if err := database.RunMigrations(db, migrations.SQLiteFS, "sqlite"); err != nil {
-		log.Error("migrations failed", "error", err)
-		os.Exit(1)
-	}
 
 	// Infrastructure
 	jwtSecret := cfg.JWTSecret
@@ -43,11 +79,6 @@ func main() {
 		jwtSecret = "dev-secret-change-in-production"
 	}
 	tokenSvc := auth.NewJWTService(jwtSecret)
-
-	// Repositories
-	userRepo := sqliteadapter.NewUserRepo(db)
-	ingRepo := sqliteadapter.NewIngredientRepo(db)
-	foodRepo := sqliteadapter.NewFoodRepo(db)
 
 	// Use-cases
 	registerUC := appuser.NewRegisterUseCase(userRepo)
@@ -78,7 +109,7 @@ func main() {
 	})
 
 	addr := fmt.Sprintf(":%d", cfg.Port)
-	log.Info("server starting", "addr", addr, "env", cfg.Env)
+	log.Info("server starting", "addr", addr, "env", cfg.Env, "driver", cfg.DBDriver)
 
 	if err := http.ListenAndServe(addr, router); err != nil {
 		log.Error("server failed", "error", err)

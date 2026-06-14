@@ -43,7 +43,7 @@ func RunMigrations(db *sql.DB, migrFS fs.FS, dialect string) error {
 		if applied[ver] {
 			continue
 		}
-		if err := applyMigration(db, migrFS, f, ver); err != nil {
+		if err := applyMigration(db, migrFS, f, ver, dialect); err != nil {
 			return err
 		}
 	}
@@ -68,7 +68,7 @@ func appliedVersions(db *sql.DB) (map[int]bool, error) {
 	return applied, rows.Err()
 }
 
-func applyMigration(db *sql.DB, migrFS fs.FS, filename string, version int) error {
+func applyMigration(db *sql.DB, migrFS fs.FS, filename string, version int, dialect string) error {
 	content, err := fs.ReadFile(migrFS, filename)
 	if err != nil {
 		return fmt.Errorf("read migration %s: %w", filename, err)
@@ -77,10 +77,17 @@ func applyMigration(db *sql.DB, migrFS fs.FS, filename string, version int) erro
 		return fmt.Errorf("apply migration %s: %w", filename, err)
 	}
 	_, err = db.Exec(
-		`INSERT INTO _schema_migrations (version, filename, applied_at) VALUES (?, ?, ?)`,
+		trackingInsertSQL(dialect),
 		version, filename, time.Now().UTC().Format(time.RFC3339),
 	)
 	return err
+}
+
+func trackingInsertSQL(dialect string) string {
+	if dialect == "postgres" {
+		return `INSERT INTO _schema_migrations (version, filename, applied_at) VALUES ($1, $2, $3)`
+	}
+	return `INSERT INTO _schema_migrations (version, filename, applied_at) VALUES (?, ?, ?)`
 }
 
 func versionFromFilename(path string) (int, error) {
