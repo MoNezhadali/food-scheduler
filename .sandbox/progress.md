@@ -394,4 +394,42 @@ docker build -t foodscheduler:latest .  # requires Docker
 
 ---
 
-## Phase 14 — OpenAPI Docs 🔜
+## Phase 14 — OpenAPI Docs ✅
+
+**Date:** 2026-06-15
+**Branch:** main
+
+### Phase 14 deliverables
+
+- **`api/openapi.yaml`** — OpenAPI 3.0.3 specification covering all 18 endpoints:
+  - Auth (register, login, refresh)
+  - Me (profile, get/update preferences)
+  - Ingredients CRUD + filters (food_group, allergen_free, search)
+  - Foods CRUD + filters (label, allergen_free, search)
+  - Shopping list generation
+  - Meal plan generation with preferences
+  - Full schema definitions: Ingredient, Food, FoodNutrition, IngredientNutrition, ShoppingListResponse, MealPlanResponse, TokenPair, Preferences, Error
+  - Security scheme: `bearerAuth` (HTTP Bearer JWT) applied to all protected routes
+- **`api/embed.go`** — exports `api.SpecYAML []byte` via `//go:embed openapi.yaml`
+- **`handlers/docs.go`** — `DocsHandler` with two endpoints:
+  - `GET /openapi.yaml` — serves the raw YAML spec (`Content-Type: application/yaml`)
+  - `GET /docs` — serves a ReDoc HTML page (CDN-loaded, no extra binary size)
+- **`router.go`** — `/openapi.yaml` and `/docs` added as public routes (no auth required); `RouterDeps` gains `Docs *handlers.DocsHandler`
+- **`cmd/server/main.go`** — wires `NewDocsHandler()`
+
+### Accessing the docs
+
+```bash
+# Raw spec
+curl http://localhost:8080/openapi.yaml
+
+# Interactive browser UI
+open http://localhost:8080/docs
+```
+
+### Build and test (Phase 14)
+
+```bash
+go test ./...  # 97 tests pass
+go build ./... # clean
+```

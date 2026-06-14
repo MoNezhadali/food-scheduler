@@ -25,6 +25,7 @@ type RouterDeps struct {
 	TokenSvc     auth.Service
 	CORSOrigins  []string
 	Health       *handlers.HealthHandler
+	Docs         *handlers.DocsHandler
 	User         *handlers.UserHandler
 	Me           *handlers.MeHandler
 	Ingredient   *handlers.IngredientHandler
@@ -52,6 +53,8 @@ func NewRouter(deps RouterDeps) http.Handler {
 	r.Use(middleware.RateLimit(defaultRateMax, time.Minute))
 
 	r.Get("/health", deps.Health.Check)
+	r.Get("/openapi.yaml", deps.Docs.ServeSpec)
+	r.Get("/docs", deps.Docs.ServeUI)
 
 	r.Route("/v1", func(r chi.Router) {
 		// Auth endpoints — stricter rate limit

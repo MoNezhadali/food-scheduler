@@ -87,6 +87,7 @@ func main() {
 
 	// Handlers
 	healthHandler := handlers.NewHealthHandler(db)
+	docsHandler := handlers.NewDocsHandler()
 	userHandler := handlers.NewUserHandler(registerUC, loginUC, refreshUC)
 	meHandler := handlers.NewMeHandler(userRepo)
 	ingHandler := handlers.NewIngredientHandler(ingRepo)
@@ -100,6 +101,7 @@ func main() {
 		TokenSvc:     tokenSvc,
 		CORSOrigins:  cfg.CORSOrigins,
 		Health:       healthHandler,
+		Docs:         docsHandler,
 		User:         userHandler,
 		Me:           meHandler,
 		Ingredient:   ingHandler,

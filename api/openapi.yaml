@@ -1,0 +1,961 @@
+openapi: "3.0.3"
+
+info:
+  title: FoodScheduler API
+  version: "1.0.0"
+  description: |
+    Food recipe database, shopping list generation, and random meal planning.
+
+    ## Authentication
+    Protected endpoints require a JWT Bearer token obtained from `/v1/auth/login`.
+    Include it as: `Authorization: Bearer <access_token>`
+
+    Admin-only endpoints additionally require the `role` claim to equal `"admin"`.
+
+servers:
+  - url: http://localhost:8080
+    description: Local development
+
+tags:
+  - name: Health
+  - name: Auth
+  - name: Me
+  - name: Ingredients
+  - name: Foods
+  - name: Shopping List
+  - name: Meal Plan
+
+# ── Security ──────────────────────────────────────────────────────────────────
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    # ── Errors ─────────────────────────────────────────────────────────────────
+
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: NOT_FOUND
+        message:
+          type: string
+          example: resource not found
+
+    # ── Auth ───────────────────────────────────────────────────────────────────
+
+    TokenPair:
+      type: object
+      required: [access_token, refresh_token, expires_in]
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        expires_in:
+          type: integer
+          description: Access token lifetime in seconds
+          example: 900
+
+    RegisterResponse:
+      type: object
+      required: [id, email, role]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [user, admin]
+          example: user
+
+    # ── Nutrition ──────────────────────────────────────────────────────────────
+
+    IngredientNutrition:
+      type: object
+      description: Nutrition values per one base unit (e.g. per 1 gram). Null means not yet known.
+      properties:
+        calories_per_base:
+          type: number
+          format: double
+          nullable: true
+        protein_per_base:
+          type: number
+          format: double
+          nullable: true
+        carbs_per_base:
+          type: number
+          format: double
+          nullable: true
+        fat_per_base:
+          type: number
+          format: double
+          nullable: true
+
+    FoodNutrition:
+      type: object
+      description: Computed totals and per-portion values (4 portions by default).
+      required:
+        - calories_total
+        - calories_per_portion
+        - protein_total
+        - protein_per_portion
+        - carbs_total
+        - carbs_per_portion
+        - fat_total
+        - fat_per_portion
+      properties:
+        calories_total:       {type: number, format: double}
+        calories_per_portion: {type: number, format: double}
+        protein_total:        {type: number, format: double}
+        protein_per_portion:  {type: number, format: double}
+        carbs_total:          {type: number, format: double}
+        carbs_per_portion:    {type: number, format: double}
+        fat_total:            {type: number, format: double}
+        fat_per_portion:      {type: number, format: double}
+
+    # ── Ingredient ─────────────────────────────────────────────────────────────
+
+    FoodGroup:
+      type: string
+      enum:
+        - fruits-and-vegetables
+        - meats-and-proteins
+        - dairy
+        - grains-and-starches
+        - oils-and-fats
+        - spices-and-seasonings
+        - nuts-and-seeds
+        - canned-and-jarred-goods
+        - beverages
+        - other
+
+    Allergen:
+      type: string
+      enum:
+        - gluten
+        - dairy
+        - eggs
+        - nuts
+        - peanuts
+        - soy
+        - fish
+        - shellfish
+        - sesame
+
+    IngredientRequest:
+      type: object
+      required: [name, display_name, base_unit, food_group, unit_map]
+      properties:
+        name:
+          type: string
+          description: Unique machine identifier (e.g. "basmati-rice")
+          example: basmati-rice
+        display_name:
+          type: string
+          example: Basmati Rice
+        base_unit:
+          type: string
+          example: grams
+        food_group:
+          $ref: "#/components/schemas/FoodGroup"
+        allergens:
+          type: array
+          items:
+            $ref: "#/components/schemas/Allergen"
+          default: []
+        unit_map:
+          type: object
+          description: Conversion factors to base unit (e.g. {"cups": 200} means 1 cup = 200 g)
+          additionalProperties:
+            type: number
+            format: double
+          example:
+            grams: 1
+            cups: 200
+        nutrition:
+          $ref: "#/components/schemas/IngredientNutrition"
+
+    Ingredient:
+      allOf:
+        - $ref: "#/components/schemas/IngredientRequest"
+        - type: object
+          required: [id, created_at, updated_at]
+          properties:
+            id:
+              type: string
+              format: uuid
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+
+    # ── Food ───────────────────────────────────────────────────────────────────
+
+    FoodIngredient:
+      type: object
+      required: [ingredient_id, amount, unit]
+      properties:
+        ingredient_id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          format: double
+          minimum: 0
+          exclusiveMinimum: true
+          example: 200
+        unit:
+          type: string
+          example: grams
+
+    FoodRequest:
+      type: object
+      required: [name, display_name, ingredients]
+      properties:
+        name:
+          type: string
+          example: persian-rice
+        display_name:
+          type: string
+          example: Persian Rice
+        description:
+          type: string
+          example: Fluffy Iranian-style rice with a crispy tahdig crust.
+        portions:
+          type: integer
+          minimum: 1
+          default: 4
+          description: Number of portions; used to compute per-portion nutrition.
+        ingredients:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/FoodIngredient"
+        recipe:
+          type: array
+          items:
+            type: string
+          description: Ordered list of preparation steps.
+        labels:
+          type: array
+          items:
+            type: string
+          description: >
+            Arbitrary labels for filtering and meal-plan constraints
+            (e.g. "beef", "chicken", "vegan", "quick").
+          example: [rice, persian]
+
+    Food:
+      allOf:
+        - $ref: "#/components/schemas/FoodRequest"
+        - type: object
+          required: [id, nutrition, created_at, updated_at]
+          properties:
+            id:
+              type: string
+              format: uuid
+            nutrition:
+              $ref: "#/components/schemas/FoodNutrition"
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+
+    # ── Shopping list ──────────────────────────────────────────────────────────
+
+    ShoppingItem:
+      type: object
+      required: [ingredient_id, name, display_name, total_amount, unit]
+      properties:
+        ingredient_id: {type: string, format: uuid}
+        name:          {type: string}
+        display_name:  {type: string}
+        total_amount:
+          type: number
+          format: double
+          description: Sum across all selected foods.
+        unit:          {type: string}
+
+    ShoppingListResponse:
+      type: object
+      required: [total_items, categories]
+      properties:
+        total_items:
+          type: integer
+          description: Total number of distinct ingredients in the list.
+        categories:
+          type: object
+          description: Items grouped by food_group key.
+          additionalProperties:
+            type: array
+            items:
+              $ref: "#/components/schemas/ShoppingItem"
+
+    # ── Meal plan ─────────────────────────────────────────────────────────────
+
+    MealPlanPreferences:
+      type: object
+      description: Minimum counts by protein label. Labels must exist on food items.
+      properties:
+        min_beef:    {type: integer, minimum: 0, default: 0}
+        min_chicken: {type: integer, minimum: 0, default: 0}
+        min_fish:    {type: integer, minimum: 0, default: 0}
+        min_pork:    {type: integer, minimum: 0, default: 0}
+
+    MealPlanResponse:
+      type: object
+      required: [count, foods]
+      properties:
+        count:
+          type: integer
+        foods:
+          type: array
+          items:
+            $ref: "#/components/schemas/Food"
+
+    # ── User / Preferences ────────────────────────────────────────────────────
+
+    Preferences:
+      type: object
+      required: [excluded_allergens, dietary_restrictions]
+      properties:
+        excluded_allergens:
+          type: array
+          items: {type: string}
+          example: [gluten, dairy]
+        dietary_restrictions:
+          type: array
+          items: {type: string}
+          example: [vegan]
+
+    MeResponse:
+      type: object
+      required: [id, email, role, preferences]
+      properties:
+        id:          {type: string, format: uuid}
+        email:       {type: string, format: email}
+        role:        {type: string, enum: [user, admin]}
+        preferences: {$ref: "#/components/schemas/Preferences"}
+
+# ── Paths ─────────────────────────────────────────────────────────────────────
+
+paths:
+
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      operationId: getHealth
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: {type: string, example: ok}
+
+  # ── Auth ───────────────────────────────────────────────────────────────────
+
+  /v1/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterResponse"
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "409":
+          description: Email already registered
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+  /v1/auth/login:
+    post:
+      tags: [Auth]
+      summary: Authenticate and receive token pair
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:    {type: string, format: email}
+                password: {type: string}
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/TokenPair"}
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+  /v1/auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Exchange a refresh token for a new token pair
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token: {type: string}
+      responses:
+        "200":
+          description: New token pair issued
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/TokenPair"}
+        "401":
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+  # ── Me ─────────────────────────────────────────────────────────────────────
+
+  /v1/me:
+    get:
+      tags: [Me]
+      summary: Get current user profile
+      operationId: getMe
+      security: [{bearerAuth: []}]
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/MeResponse"}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+  /v1/me/preferences:
+    get:
+      tags: [Me]
+      summary: Get current user preferences
+      operationId: getPreferences
+      security: [{bearerAuth: []}]
+      responses:
+        "200":
+          description: Preferences
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Preferences"}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+    put:
+      tags: [Me]
+      summary: Update current user preferences
+      operationId: updatePreferences
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/Preferences"}
+      responses:
+        "200":
+          description: Updated preferences
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Preferences"}
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+  # ── Ingredients ────────────────────────────────────────────────────────────
+
+  /v1/ingredients:
+    get:
+      tags: [Ingredients]
+      summary: List ingredients
+      operationId: listIngredients
+      security: [{bearerAuth: []}]
+      parameters:
+        - name: food_group
+          in: query
+          schema: {$ref: "#/components/schemas/FoodGroup"}
+        - name: allergen_free
+          in: query
+          description: Exclude ingredients containing this allergen (repeatable)
+          schema:
+            type: array
+            items: {$ref: "#/components/schemas/Allergen"}
+          style: form
+          explode: true
+        - name: search
+          in: query
+          description: Full-text search on name and display_name
+          schema: {type: string}
+      responses:
+        "200":
+          description: List of ingredients
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: "#/components/schemas/Ingredient"}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+    post:
+      tags: [Ingredients]
+      summary: Create an ingredient (admin only)
+      operationId: createIngredient
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/IngredientRequest"}
+      responses:
+        "201":
+          description: Created ingredient
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Ingredient"}
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "403":
+          description: Admin role required
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "409":
+          description: Ingredient name already exists
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+  /v1/ingredients/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: {type: string, format: uuid}
+
+    get:
+      tags: [Ingredients]
+      summary: Get ingredient by ID
+      operationId: getIngredient
+      security: [{bearerAuth: []}]
+      responses:
+        "200":
+          description: Ingredient
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Ingredient"}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+    put:
+      tags: [Ingredients]
+      summary: Update an ingredient (admin only)
+      operationId: updateIngredient
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/IngredientRequest"}
+      responses:
+        "200":
+          description: Updated ingredient
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Ingredient"}
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "403":
+          description: Admin role required
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+    delete:
+      tags: [Ingredients]
+      summary: Delete an ingredient (admin only)
+      operationId: deleteIngredient
+      security: [{bearerAuth: []}]
+      responses:
+        "204":
+          description: Deleted
+        "400":
+          description: Ingredient is referenced by one or more foods
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "403":
+          description: Admin role required
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+  # ── Foods ──────────────────────────────────────────────────────────────────
+
+  /v1/foods:
+    get:
+      tags: [Foods]
+      summary: List foods
+      operationId: listFoods
+      security: [{bearerAuth: []}]
+      parameters:
+        - name: label
+          in: query
+          description: Filter by label (repeatable; ALL labels must match)
+          schema:
+            type: array
+            items: {type: string}
+          style: form
+          explode: true
+        - name: allergen_free
+          in: query
+          description: Exclude foods that contain this allergen (repeatable)
+          schema:
+            type: array
+            items: {$ref: "#/components/schemas/Allergen"}
+          style: form
+          explode: true
+        - name: search
+          in: query
+          description: Full-text search on name, display_name, and description
+          schema: {type: string}
+      responses:
+        "200":
+          description: List of foods
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {$ref: "#/components/schemas/Food"}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+    post:
+      tags: [Foods]
+      summary: Create a food (admin only). Nutrition is computed from ingredients.
+      operationId: createFood
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/FoodRequest"}
+      responses:
+        "201":
+          description: Created food with computed nutrition
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Food"}
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "403":
+          description: Admin role required
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "409":
+          description: Food name already exists
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+  /v1/foods/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: {type: string, format: uuid}
+
+    get:
+      tags: [Foods]
+      summary: Get food by ID
+      operationId: getFood
+      security: [{bearerAuth: []}]
+      responses:
+        "200":
+          description: Food
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Food"}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+    put:
+      tags: [Foods]
+      summary: Update a food (admin only). Nutrition is recomputed.
+      operationId: updateFood
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/FoodRequest"}
+      responses:
+        "200":
+          description: Updated food with recomputed nutrition
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Food"}
+        "400":
+          description: Invalid input
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "403":
+          description: Admin role required
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+    delete:
+      tags: [Foods]
+      summary: Delete a food (admin only)
+      operationId: deleteFood
+      security: [{bearerAuth: []}]
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "403":
+          description: Admin role required
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+  # ── Shopping list ──────────────────────────────────────────────────────────
+
+  /v1/shopping-list:
+    post:
+      tags: [Shopping List]
+      summary: Generate a categorised shopping list for a set of foods
+      operationId: generateShoppingList
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [food_ids]
+              properties:
+                food_ids:
+                  type: array
+                  minItems: 1
+                  items: {type: string, format: uuid}
+      responses:
+        "200":
+          description: Shopping list grouped by food group
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ShoppingListResponse"}
+        "400":
+          description: food_ids is empty or missing
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+
+  # ── Meal plan ─────────────────────────────────────────────────────────────
+
+  /v1/meal-plan:
+    post:
+      tags: [Meal Plan]
+      summary: Generate a random meal plan
+      operationId: generateMealPlan
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [count]
+              properties:
+                count:
+                  type: integer
+                  minimum: 1
+                  description: Number of foods to include in the plan
+                allergen_free:
+                  type: array
+                  items: {$ref: "#/components/schemas/Allergen"}
+                  description: Exclude foods that contain any of these allergens
+                labels:
+                  type: array
+                  items: {type: string}
+                  description: Only include foods that have ALL of these labels
+                preferences:
+                  $ref: "#/components/schemas/MealPlanPreferences"
+      responses:
+        "200":
+          description: Generated meal plan
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/MealPlanResponse"}
+        "400":
+          description: count < 1
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+        "422":
+          description: Not enough foods in the pool to satisfy the constraints
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Error"}
+              example:
+                code: INSUFFICIENT_FOODS
+                message: not enough foods to satisfy the requested plan
