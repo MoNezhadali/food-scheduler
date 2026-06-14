@@ -85,8 +85,24 @@ go test ./internal/domain/... -v   # 16 PASS, 0 FAIL
 go test ./...   # all packages green
 ```
 
-## Phase 4 — Seeder 🔜
-Planned: load existing JSON files from `foods/` and `ingredients/` into DB.
+## Phase 4 — Seeder ✅
+**Date:** 2026-06-14
+**Branch:** main
+
+### What was built
+- **Fixture files** (`internal/adapters/secondary/seed/fixtures/`): clean new-schema JSON for 19 ingredients and 3 foods
+  - `ingredients.json`: all ingredients with correct `base_unit` + `unit_map` (real-world weights: 1 cup rice = 200g, 1 tablespoon olive oil = 14g, etc.)
+  - `foods.json`: bread-n-cheese, chinese-meal, istanbuli — with real recipe steps and ingredient references by name
+- **`seed.FixtureFS`** (`embed.go`): embeds fixtures directory into binary — no runtime file paths needed
+- **`Seeder`** (`seeder.go`): reads fixtures, resolves ingredient names → IDs, inserts ingredients then foods; idempotent (catches `ErrAlreadyExists` and skips)
+- **`cmd/seed/main.go`**: wires config → SQLite → migrations → repos → seeder; structured JSON log output
+
+### Verify
+```bash
+go run ./cmd/seed
+# First run:  ingredients_inserted=19 foods_inserted=3
+# Second run: ingredients_skipped=19  foods_skipped=3  (idempotent)
+```
 
 ## Phase 4b — Nutrition Enrichment CLI 🔜
 Planned: `make enrich` — interactive USDA FoodData Central lookup for ingredients with NULL nutrition.

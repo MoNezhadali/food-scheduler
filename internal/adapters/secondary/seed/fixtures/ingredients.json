@@ -1,0 +1,154 @@
+[
+  {
+    "name": "bell-pepper",
+    "display_name": "Bell Peppers",
+    "food_group": "fruits-and-vegetables",
+    "allergens": [],
+    "base_unit": "grams",
+    "unit_map": { "gram": 1, "grams": 1, "small": 100, "medium": 120, "large": 150 }
+  },
+  {
+    "name": "black-pepper",
+    "display_name": "Black Pepper",
+    "food_group": "spices-and-seasonings",
+    "allergens": [],
+    "base_unit": "grams",
+    "unit_map": { "gram": 1, "grams": 1, "teaspoon": 2, "teaspoons": 2 }
+  },
+  {
+    "name": "cantarelle-sauce-powder",
+    "display_name": "Cantarelle Sauce Powder",
+    "food_group": "spices-and-seasonings",
+    "allergens": [],
+    "base_unit": "grams",
+    "unit_map": { "gram": 1, "grams": 1 }
+  },
+  {
+    "name": "carrots",
+    "display_name": "Carrots",
+    "food_group": "fruits-and-vegetables",
+    "allergens": [],
+    "base_unit": "grams",
+    "unit_map": { "gram": 1, "grams": 1, "small": 60, "medium": 80, "large": 130 }
+  },
+  {
+    "name": "champignon-mushrooms",
+    "display_name": "Champignon Mushrooms",
+    "food_group": "fruits-and-vegetables",
+    "allergens": [],
+    "base_unit": "grams",
+    "unit_map": { "gram": 1, "grams": 1, "small": 15, "medium": 25, "large": 40 }
+  },
+  {
+    "name": "chicken-breast",
+    "display_name": "Chicken Breast",
+    "food_group": "meats-and-proteins",
+    "allergens": ["poultry"],
+    "base_unit": "grams",
+    "unit_map": { "gram": 1, "grams": 1 }
+  },
+  {
+    "name": "fresh-mint",
+    "display_name": "Fresh Mint",
+    "food_group": "fruits-and-vegetables",
+    "allergens": [],
+    "base_unit": "grams",
+    "unit_map": { "gram": 1, "grams": 1, "bunch": 30, "bunches": 30 }
+  },
+  {
+    "name": "fresh-parsley",
+    "display_name": "Fresh Parsley",
+    "food_group": "fruits-and-vegetables",
+    "allergens": [],
+    "base_unit": "grams",
+    "unit_map": { "gram": 1, "grams": 1, "bunch": 30, "bunches": 30 }
+  },
+  {
+    "name": "ground-meat-lamb-beef",
+    "display_name": "Ground Meat (Lamb or Beef)",
+    "food_group": "meats-and-proteins",
+    "allergens": ["red-meat"],
+    "base_unit": "grams",
+    "unit_map": { "gram": 1, "grams": 1 }
+  },
+  {
+    "name": "olive-oil",
+    "display_name": "Olive Oil",
+    "food_group": "oils-and-fats",
+    "allergens": [],
+    "base_unit": "grams",
+    "unit_map": { "gram": 1, "grams": 1, "tablespoon": 14, "tablespoons": 14, "milliliter": 0.91, "milliliters": 0.91 }
+  },
+  {
+    "name": "onion",
+    "display_name": "Onion",
+    "food_group": "fruits-and-vegetables",
+    "allergens": [],
+    "base_unit": "grams",
+    "unit_map": { "gram": 1, "grams": 1, "small": 90, "medium": 150, "large": 200 }
+  },
+  {
+    "name": "rice",
+    "display_name": "Rice",
+    "food_group": "grains-and-starches",
+    "allergens": [],
+    "base_unit": "grams",
+    "unit_map": { "gram": 1, "grams": 1, "cup": 200, "cups": 200 }
+  },
+  {
+    "name": "salt",
+    "display_name": "Salt",
+    "food_group": "spices-and-seasonings",
+    "allergens": [],
+    "base_unit": "grams",
+    "unit_map": { "gram": 1, "grams": 1, "teaspoon": 6, "teaspoons": 6 }
+  },
+  {
+    "name": "sangak-bread",
+    "display_name": "Sangak Bread",
+    "food_group": "grains-and-starches",
+    "allergens": ["gluten"],
+    "base_unit": "grams",
+    "unit_map": { "gram": 1, "grams": 1, "loaf": 800, "loaves": 800 }
+  },
+  {
+    "name": "sheep-cheese",
+    "display_name": "Sheep Cheese",
+    "food_group": "dairy",
+    "allergens": ["dairy"],
+    "base_unit": "grams",
+    "unit_map": { "gram": 1, "grams": 1 }
+  },
+  {
+    "name": "tomato-paste",
+    "display_name": "Tomato Paste",
+    "food_group": "canned-and-jarred-goods",
+    "allergens": [],
+    "base_unit": "grams",
+    "unit_map": { "gram": 1, "grams": 1, "tablespoon": 15, "tablespoons": 15 }
+  },
+  {
+    "name": "turkish-yogurt",
+    "display_name": "Turkish Yogurt",
+    "food_group": "dairy",
+    "allergens": ["dairy"],
+    "base_unit": "grams",
+    "unit_map": { "gram": 1, "grams": 1 }
+  },
+  {
+    "name": "turmeric",
+    "display_name": "Turmeric",
+    "food_group": "spices-and-seasonings",
+    "allergens": [],
+    "base_unit": "grams",
+    "unit_map": { "gram": 1, "grams": 1, "teaspoon": 3, "teaspoons": 3 }
+  },
+  {
+    "name": "walnuts",
+    "display_name": "Walnuts",
+    "food_group": "nuts-and-seeds",
+    "allergens": ["nuts"],
+    "base_unit": "grams",
+    "unit_map": { "gram": 1, "grams": 1, "cup": 120, "cups": 120 }
+  }
+]

@@ -1,0 +1,65 @@
+[
+  {
+    "name": "bread-n-cheese",
+    "display_name": "Bread & Cheese",
+    "description": "Bibusia's favorite Iranian snack",
+    "portions": 2,
+    "recipe": ["Slice the sangak bread.", "Arrange sheep cheese, fresh mint, and walnuts on top."],
+    "labels": ["vegetarian", "snack"],
+    "ingredients": [
+      { "ingredient_name": "sangak-bread",  "amount": 300, "unit": "grams" },
+      { "ingredient_name": "sheep-cheese",  "amount": 200, "unit": "grams" },
+      { "ingredient_name": "fresh-mint",    "amount": 80,  "unit": "grams" },
+      { "ingredient_name": "walnuts",       "amount": 200, "unit": "grams" }
+    ]
+  },
+  {
+    "name": "chinese-meal",
+    "display_name": "Chinese Meal",
+    "description": "A food invented by Chef Grazynka Poltorak",
+    "portions": 4,
+    "recipe": [
+      "Cook the rice according to package instructions.",
+      "Cut chicken breast into strips and stir-fry until golden.",
+      "Add sliced bell peppers and champignon mushrooms; cook 5 minutes.",
+      "Stir in cantarelle sauce powder and Turkish yogurt.",
+      "Serve over rice."
+    ],
+    "labels": ["main-course", "asian", "poultry"],
+    "ingredients": [
+      { "ingredient_name": "rice",                   "amount": 4,   "unit": "cups"   },
+      { "ingredient_name": "chicken-breast",          "amount": 500, "unit": "grams"  },
+      { "ingredient_name": "bell-pepper",             "amount": 150, "unit": "grams"  },
+      { "ingredient_name": "champignon-mushrooms",    "amount": 150, "unit": "grams"  },
+      { "ingredient_name": "cantarelle-sauce-powder", "amount": 30,  "unit": "grams"  },
+      { "ingredient_name": "turkish-yogurt",          "amount": 300, "unit": "grams"  }
+    ]
+  },
+  {
+    "name": "istanbuli",
+    "display_name": "Istanbuli",
+    "description": "A traditional Turkish dish made with rice, ground meat, and spices",
+    "portions": 4,
+    "recipe": [
+      "Brown the ground meat in olive oil with diced onion until cooked through.",
+      "Add tomato paste, turmeric, black pepper, and salt; stir 2 minutes.",
+      "Add grated carrots and cook 3 minutes.",
+      "Add rice and enough water to cover; bring to a boil, then simmer covered for 20 minutes.",
+      "Garnish with fresh parsley and serve with Turkish yogurt on the side."
+    ],
+    "labels": ["main-course", "red-meat", "middle-eastern"],
+    "ingredients": [
+      { "ingredient_name": "rice",                 "amount": 4,   "unit": "cups"        },
+      { "ingredient_name": "ground-meat-lamb-beef", "amount": 500, "unit": "grams"       },
+      { "ingredient_name": "onion",                "amount": 150, "unit": "grams"       },
+      { "ingredient_name": "tomato-paste",         "amount": 2,   "unit": "tablespoons" },
+      { "ingredient_name": "olive-oil",            "amount": 2,   "unit": "tablespoons" },
+      { "ingredient_name": "salt",                 "amount": 1,   "unit": "teaspoon"    },
+      { "ingredient_name": "turmeric",             "amount": 0.5, "unit": "teaspoon"    },
+      { "ingredient_name": "black-pepper",         "amount": 0.5, "unit": "teaspoon"    },
+      { "ingredient_name": "carrots",              "amount": 150, "unit": "grams"       },
+      { "ingredient_name": "fresh-parsley",        "amount": 20,  "unit": "grams"       },
+      { "ingredient_name": "turkish-yogurt",       "amount": 300, "unit": "grams"       }
+    ]
+  }
+]
