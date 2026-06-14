@@ -265,8 +265,40 @@ go test ./...  # 78 tests, all green
 go test ./...  # 85 tests, all green
 ```
 
-## Phase 10 — User Preferences (old marker, replaced above)
-## Phase 11 — Security Hardening 🔜
+## Phase 11 — Security Hardening ✅
+
+**Date:** 2026-06-14
+**Branch:** main
+
+### What was built
+
+- **`middleware/cors.go`**: `CORS(allowedOrigins []string)` — wildcard or specific-origin allowlist; blocked origins → 403; preflight OPTIONS → 204 with ACAM/ACAH/ACMA headers
+- **`middleware/secure_headers.go`**: `SecureHeaders()` — sets `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `X-XSS-Protection: 1; mode=block`, `Referrer-Policy: strict-origin-when-cross-origin`, `Content-Security-Policy: default-src 'none'` on every response
+- **`middleware/body_limit.go`**: `BodyLimit(maxBytes int64)` — checks `Content-Length` header first; wraps `r.Body` with `http.MaxBytesReader`; oversized → 413 `PAYLOAD_TOO_LARGE`
+- **`middleware/rate_limit.go`**: `RateLimit(max int, window time.Duration)` — fixed-window per-IP limiter; `sync.Mutex` map with lazy cleanup every 256 requests; exceeded → 429 `RATE_LIMITED` + `Retry-After` header; `clientIP()` honours `X-Forwarded-For`, `X-Real-IP`
+- **`internal/infrastructure/config/config.go`**: added `CORSOrigins []string`; parses `CORS_ORIGINS` env var (comma-separated); defaults to `["*"]`
+- **`.env.example`**: documented `CORS_ORIGINS` variable
+- **`router.go`** updated: global stack now applies `SecureHeaders → CORS → Logging → Recovery → BodyLimit(1MB) → RateLimit(300/min)`; auth group gets a tighter `RateLimit(20/min)` inner middleware; `RouterDeps` gains `CORSOrigins []string`; added `chimiddleware.Timeout(30s)`
+- **`cmd/server/main.go`** updated: passes `cfg.CORSOrigins` to `RouterDeps`
+- **`middleware/middleware_test.go`**: 12 tests covering all four new middlewares
+
+### Rate limits
+
+| Scope            | Limit               |
+|------------------|---------------------|
+| `/v1/auth/*`     | 20 req/min per IP   |
+| All other routes | 300 req/min per IP  |
+
+### Verify
+
+```bash
+go test ./...  # 97 tests, all green
+```
+
+---
+
 ## Phase 12 — PostgreSQL Adapter 🔜
+
 ## Phase 13 — Dockerfile + CI 🔜
+
 ## Phase 14 — OpenAPI Docs 🔜

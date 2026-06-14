@@ -3,6 +3,7 @@ package httpadapter
 import (
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
@@ -12,9 +13,17 @@ import (
 	"github.com/MoNezhadali/foodscheduler/internal/infrastructure/auth"
 )
 
+const (
+	maxBodyBytes    = 1 << 20 // 1 MB
+	authRateMax     = 20      // auth endpoints: 20 req/min per IP
+	defaultRateMax  = 300     // other endpoints: 300 req/min per IP
+	requestTimeout  = 30 * time.Second
+)
+
 type RouterDeps struct {
 	Logger       *slog.Logger
 	TokenSvc     auth.Service
+	CORSOrigins  []string
 	Health       *handlers.HealthHandler
 	User         *handlers.UserHandler
 	Me           *handlers.MeHandler
@@ -25,19 +34,32 @@ type RouterDeps struct {
 }
 
 func NewRouter(deps RouterDeps) http.Handler {
+	corsOrigins := deps.CORSOrigins
+	if len(corsOrigins) == 0 {
+		corsOrigins = []string{"*"}
+	}
+
 	r := chi.NewRouter()
 
+	// Global middleware (applied to every request)
 	r.Use(chimiddleware.RequestID)
+	r.Use(chimiddleware.Timeout(requestTimeout))
+	r.Use(middleware.SecureHeaders())
+	r.Use(middleware.CORS(corsOrigins))
 	r.Use(middleware.Logging(deps.Logger))
 	r.Use(middleware.Recovery(deps.Logger))
+	r.Use(middleware.BodyLimit(maxBodyBytes))
+	r.Use(middleware.RateLimit(defaultRateMax, time.Minute))
 
 	r.Get("/health", deps.Health.Check)
 
 	r.Route("/v1", func(r chi.Router) {
-		r.Route("/auth", func(r chi.Router) {
-			r.Post("/register", deps.User.Register)
-			r.Post("/login", deps.User.Login)
-			r.Post("/refresh", deps.User.Refresh)
+		// Auth endpoints — stricter rate limit
+		r.Group(func(r chi.Router) {
+			r.Use(middleware.RateLimit(authRateMax, time.Minute))
+			r.Post("/auth/register", deps.User.Register)
+			r.Post("/auth/login", deps.User.Login)
+			r.Post("/auth/refresh", deps.User.Refresh)
 		})
 
 		// Protected routes (auth required for all)

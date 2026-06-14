@@ -67,6 +67,7 @@ func main() {
 	router := httpadapter.NewRouter(httpadapter.RouterDeps{
 		Logger:       log,
 		TokenSvc:     tokenSvc,
+		CORSOrigins:  cfg.CORSOrigins,
 		Health:       healthHandler,
 		User:         userHandler,
 		Me:           meHandler,
