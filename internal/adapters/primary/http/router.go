@@ -13,10 +13,11 @@ import (
 )
 
 type RouterDeps struct {
-	Logger   *slog.Logger
-	TokenSvc auth.Service
-	Health   *handlers.HealthHandler
-	User     *handlers.UserHandler
+	Logger     *slog.Logger
+	TokenSvc   auth.Service
+	Health     *handlers.HealthHandler
+	User       *handlers.UserHandler
+	Ingredient *handlers.IngredientHandler
 }
 
 func NewRouter(deps RouterDeps) http.Handler {
@@ -35,9 +36,20 @@ func NewRouter(deps RouterDeps) http.Handler {
 			r.Post("/refresh", deps.User.Refresh)
 		})
 
-		// Protected routes — populated from Phase 6 onward
+		// Protected routes (auth required for all)
 		r.Group(func(r chi.Router) {
 			r.Use(middleware.Auth(deps.TokenSvc))
+
+			r.Route("/ingredients", func(r chi.Router) {
+				r.Get("/", deps.Ingredient.List)
+				r.Get("/{id}", deps.Ingredient.GetByID)
+				r.Group(func(r chi.Router) {
+					r.Use(middleware.RequireRole("admin"))
+					r.Post("/", deps.Ingredient.Create)
+					r.Put("/{id}", deps.Ingredient.Update)
+					r.Delete("/{id}", deps.Ingredient.Delete)
+				})
+			})
 		})
 	})
 

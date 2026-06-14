@@ -144,7 +144,31 @@ curl -X POST localhost:9099/v1/auth/login -d '{"email":"a@b.com","password":"pas
 curl -X POST localhost:9099/v1/auth/refresh -d '{"refresh_token":"<from above>"}'
 ```
 
-## Phase 6 — Ingredient CRUD 🔜
+## Phase 6 — Ingredient CRUD ✅
+**Date:** 2026-06-14
+**Branch:** main
+
+### What was built
+- **`middleware/role.go`**: `RequireRole(role string)` middleware — reads `Claims` from context, returns 403 if role doesn't match
+- **`handlers/ingredient.go`**: `IngredientHandler` with `List`, `GetByID`, `Create`, `Update`, `Delete`
+  - `List` parses query params: `food_group`, `allergen_free` (repeatable), `search`
+  - `Create`/`Update` validate required fields (name, display_name, base_unit, food_group, non-empty unit_map)
+  - `toIngredientResponse()` / `toDomain()` converters keep domain types out of HTTP layer
+- **`handlers/ingredient_test.go`**: 11 integration tests (httptest + real SQLite `:memory:`)
+  - CRUD full lifecycle, filter by food_group/allergen_free/search, auth checks, validation
+- **Router** updated with ingredient routes under `GET`/`PUT`/`DELETE`/`POST /v1/ingredients`
+- **`cmd/server/main.go`** wires `IngredientRepo` → `IngredientHandler`
+
+### Access control
+- `GET /v1/ingredients` and `GET /v1/ingredients/{id}` — any authenticated user
+- `POST`, `PUT`, `DELETE` — admin only (`role == "admin"`)
+
+### Verify
+```bash
+go test ./...  # all packages green (52 tests)
+```
+
+## Phase 6 — Ingredient CRUD (old marker, replaced above)
 ## Phase 7 — Food CRUD + Nutrition Computation 🔜
 ## Phase 8 — Shopping List Endpoint 🔜
 ## Phase 9 — Random Meal Plan Endpoint 🔜
