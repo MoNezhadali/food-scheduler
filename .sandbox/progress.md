@@ -37,8 +37,21 @@ go run ./cmd/server  # prints JSON startup log
 
 ---
 
-## Phase 2 — Domain Unit Tests 🔜
-Planned: unit tests for `ComputeNutrition`, `Generate` (shopping list), and `Plan` (meal planner).
+## Phase 2 — Domain Unit Tests ✅
+**Date:** 2026-06-14
+**Branch:** main
+
+### What was built
+- Added `github.com/stretchr/testify` dependency
+- **16 tests, all passing** across three packages:
+  - `food/nutrition_test.go` (5 tests): full nutrition, partial nutrition (nil fields skipped), unknown ingredient skipped, zero-portions no-panic, unit conversion (tablespoons → grams)
+  - `shoppinglist/generator_test.go` (5 tests): single food, shared ingredient summed across foods, grouped by food group, unknown ingredient skipped, empty food list
+  - `mealplan/planner_test.go` (6 tests): correct count, no repeats, exact fit, insufficient pool error, zero count, empty pool error
+
+### Verify
+```bash
+go test ./internal/domain/... -v   # 16 PASS, 0 FAIL
+```
 
 ## Phase 3 — SQLite Adapter + Migrations 🔜
 Planned: DB connection, migration files, SQLite implementations of all repository interfaces.
