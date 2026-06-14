@@ -247,7 +247,25 @@ go test ./...  # 78 tests, all green
 ```
 
 ## Phase 9 — Random Meal Plan Endpoint (old marker, replaced above)
-## Phase 10 — User Preferences 🔜
+## Phase 10 — User Preferences ✅
+**Date:** 2026-06-14
+**Branch:** main
+
+### What was built
+- **`handlers/me.go`**: `MeHandler` with three endpoints, all reading `claims.UserID` from context:
+  - `GET /v1/me` — returns `{id, email, role, preferences: {excluded_allergens, dietary_restrictions}}`
+  - `GET /v1/me/preferences` — returns just the preferences object
+  - `PUT /v1/me/preferences` — updates and returns the new preferences; nil slices normalised to `[]`
+- **`handlers/me_test.go`**: 7 tests — profile read, default empty prefs, update, update-then-get round-trip, clear to empty, two users isolated, all three routes require auth
+- **Router**: `/v1/me`, `/v1/me/preferences` added under the authenticated group
+- **`cmd/server/main.go`** wires `MeHandler(userRepo)`
+
+### Verify
+```bash
+go test ./...  # 85 tests, all green
+```
+
+## Phase 10 — User Preferences (old marker, replaced above)
 ## Phase 11 — Security Hardening 🔜
 ## Phase 12 — PostgreSQL Adapter 🔜
 ## Phase 13 — Dockerfile + CI 🔜

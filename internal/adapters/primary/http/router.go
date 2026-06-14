@@ -17,6 +17,7 @@ type RouterDeps struct {
 	TokenSvc     auth.Service
 	Health       *handlers.HealthHandler
 	User         *handlers.UserHandler
+	Me           *handlers.MeHandler
 	Ingredient   *handlers.IngredientHandler
 	Food         *handlers.FoodHandler
 	ShoppingList *handlers.ShoppingListHandler
@@ -42,6 +43,10 @@ func NewRouter(deps RouterDeps) http.Handler {
 		// Protected routes (auth required for all)
 		r.Group(func(r chi.Router) {
 			r.Use(middleware.Auth(deps.TokenSvc))
+
+			r.Get("/me", deps.Me.GetProfile)
+			r.Get("/me/preferences", deps.Me.GetPreferences)
+			r.Put("/me/preferences", deps.Me.UpdatePreferences)
 
 			r.Route("/ingredients", func(r chi.Router) {
 				r.Get("/", deps.Ingredient.List)

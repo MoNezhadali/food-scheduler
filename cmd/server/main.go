@@ -57,6 +57,7 @@ func main() {
 	// Handlers
 	healthHandler := handlers.NewHealthHandler(db)
 	userHandler := handlers.NewUserHandler(registerUC, loginUC, refreshUC)
+	meHandler := handlers.NewMeHandler(userRepo)
 	ingHandler := handlers.NewIngredientHandler(ingRepo)
 	foodHandler := handlers.NewFoodHandler(foodRepo, ingRepo)
 	slHandler := handlers.NewShoppingListHandler(foodRepo, ingRepo)
@@ -68,6 +69,7 @@ func main() {
 		TokenSvc:     tokenSvc,
 		Health:       healthHandler,
 		User:         userHandler,
+		Me:           meHandler,
 		Ingredient:   ingHandler,
 		Food:         foodHandler,
 		ShoppingList: slHandler,
